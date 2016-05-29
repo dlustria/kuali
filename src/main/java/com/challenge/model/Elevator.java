@@ -18,6 +18,8 @@ import com.challenge.constants.ElevatorState;
  */
 public class Elevator {
 
+	private static final int MAX_TRIPS = 100;
+
 	private final int _id;
 
 	private final int _maxFloor;
@@ -149,6 +151,10 @@ public class Elevator {
 		}
 	}
 
+	private void callForService() {
+		// call service manager to work on elevator and put it back in service
+	}
+
 	/**
 	 * Close the door.
 	 */
@@ -165,6 +171,9 @@ public class Elevator {
 
 	private void incrementTrips() {
 		_trips++;
+		if (_trips >= MAX_TRIPS) {
+			scheduleForService();
+		}
 	}
 
 	/**
@@ -209,6 +218,12 @@ public class Elevator {
 
 	private void reportFloor() {
 		System.out.println("elevator " + _id + ": floor " + _currentFloor);
+	}
+
+	private void scheduleForService() {
+		setElevatorState(ElevatorState.OUT_OF_SERVICE);
+		moveTo(_minFloor);
+		callForService();
 	}
 
 	private void stopElevator() {

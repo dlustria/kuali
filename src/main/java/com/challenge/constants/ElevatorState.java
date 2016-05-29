@@ -28,6 +28,11 @@ public enum ElevatorState {
 	/**
 	 * Elevator is stopped.
 	 */
-	STOPPED;
+	STOPPED,
+
+	/**
+	 * Elevator is out of service.
+	 */
+	OUT_OF_SERVICE;
 
 }
