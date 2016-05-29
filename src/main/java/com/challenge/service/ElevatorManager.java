@@ -21,7 +21,7 @@ import com.challenge.model.Elevator;
  */
 public class ElevatorManager {
 
-	private final List<Elevator> _elevators;
+	private List<Elevator> _elevators;
 
 	/**
 	 * Default ctor.
@@ -29,7 +29,7 @@ public class ElevatorManager {
 	public ElevatorManager() {
 		final int numberOfFloors = 10;
 		final int numberOfElevators = 10;
-		_elevators = initializeElavators(numberOfFloors, numberOfElevators);
+		initializeElavators(numberOfFloors, numberOfElevators);
 	}
 
 	/**
@@ -40,14 +40,38 @@ public class ElevatorManager {
 	}
 
 	/**
+	 * @param fromFloor
+	 * @param toFloor
+	 */
+	public void requestElevator(final int fromFloor, final int toFloor) {
+		final Elevator elevator = locateElevator(fromFloor, toFloor);
+
+		if (elevator != null) {
+			System.out.println("requested elevator " + elevator.getId());
+		}
+	}
+
+	/**
 	 * @param numberOfFloors
 	 * @param numberOfElevators
 	 */
-	private List<Elevator> initializeElavators(int numberOfFloors, int numberOfElevators) {
-		final List<Elevator> retval = new ArrayList<Elevator>();
-
+	private void initializeElavators(int numberOfFloors, int numberOfElevators) {
+		_elevators = new ArrayList<Elevator>();
 		for (int i = 1; i <= numberOfFloors; i++) {
-			retval.add(new Elevator(i, 1, numberOfFloors));
+			_elevators.add(new Elevator(i, 1, numberOfFloors));
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	private Elevator locateElevator(final int fromFloor, final int toFloor) {
+		Elevator retval = null;
+		for (final Elevator elevator : _elevators) {
+			if (elevator.getCurrentFloor() == fromFloor) {
+				retval = elevator;
+				break;
+			}
 		}
 
 		return retval;

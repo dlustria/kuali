@@ -30,6 +30,10 @@ public class Elevator {
 
 	private ElevatorState _elevatorState;
 
+	private int _trips;
+
+	private int _floorsPassed;
+
 	/**
 	 * Default ctor.
 	 *
@@ -46,10 +50,38 @@ public class Elevator {
 	}
 
 	/**
+	 * @return the currentFloor
+	 */
+	public int getCurrentFloor() {
+		return _currentFloor;
+	}
+
+	/**
 	 * @return the elevatorState
 	 */
 	public ElevatorState getElevatorState() {
 		return _elevatorState;
+	}
+
+	/**
+	 * @return the floorsPassed
+	 */
+	public int getFloorsPassed() {
+		return _floorsPassed;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return _id;
+	}
+
+	/**
+	 * @return the numberOfTrips
+	 */
+	public int getNumberOfTrips() {
+		return _trips;
 	}
 
 	/**
@@ -67,6 +99,20 @@ public class Elevator {
 	}
 
 	/**
+	 * @param floorsPassed the floorsPassed to set
+	 */
+	public void setFloorsPassed(int floorsPassed) {
+		_floorsPassed = floorsPassed;
+	}
+
+	/**
+	 * @param numberOfTrips the numberOfTrips to set
+	 */
+	public void setNumberOfTrips(int numberOfTrips) {
+		_trips = numberOfTrips;
+	}
+
+	/**
 	 * @param targetFloor
 	 */
 	public void summonElevator(final int targetFloor) {
@@ -76,6 +122,7 @@ public class Elevator {
 			}
 			stopElevator();
 			openDoor();
+			incrementTrips();
 		} else {
 			System.out.println("invalid floor");
 		}
@@ -91,6 +138,14 @@ public class Elevator {
 		}
 	}
 
+	private void incrementFloorsPassed() {
+		_floorsPassed++;
+	}
+
+	private void incrementTrips() {
+		_trips++;
+	}
+
 	/**
 	 * @param targetFloor
 	 */
@@ -100,6 +155,7 @@ public class Elevator {
 				closeDoor();
 			}
 			_currentFloor++;
+			incrementFloorsPassed();
 			setElevatorState(ElevatorState.MOVING_UP);
 			reportFloor();
 		} else if (targetFloor < _currentFloor) {
@@ -107,6 +163,7 @@ public class Elevator {
 				closeDoor();
 			}
 			_currentFloor--;
+			incrementFloorsPassed();
 			setElevatorState(ElevatorState.MOVING_DOWN);
 			reportFloor();
 		}
