@@ -10,6 +10,7 @@ package com.challenge.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.challenge.constants.ElevatorState;
 import com.challenge.model.Elevator;
 
 /**
@@ -66,11 +67,19 @@ public class ElevatorManager {
 	 * @return
 	 */
 	private Elevator locateElevator(final int fromFloor, final int toFloor) {
+		final ElevatorState requestedDirection = toFloor - fromFloor > 0 ? ElevatorState.MOVING_UP : ElevatorState.MOVING_DOWN;
 		Elevator retval = null;
+		Elevator closestMovingElevator = null;
 		for (final Elevator elevator : _elevators) {
 			if (elevator.getCurrentFloor() == fromFloor) {
 				retval = elevator;
 				break;
+			}
+
+			if (elevator.getCurrentFloor() < fromFloor && (elevator.isStopped() || elevator.isMovingUp()) && requestedDirection == ElevatorState.MOVING_UP) {
+				if (closestMovingElevator == null) {
+					closestMovingElevator = elevator;
+				}
 			}
 		}
 
