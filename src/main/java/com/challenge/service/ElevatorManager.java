@@ -52,6 +52,10 @@ public class ElevatorManager {
 		}
 	}
 
+	private Elevator chooseCloserElevator(final Elevator elevator1, final Elevator elevator2, final int floor) {
+		return Math.abs(elevator2.getCurrentFloor() - floor) < Math.abs(elevator1.getCurrentFloor() - floor) ? elevator2 : elevator1;
+	}
+
 	/**
 	 * @param numberOfFloors
 	 * @param numberOfElevators
@@ -69,6 +73,7 @@ public class ElevatorManager {
 	private Elevator locateElevator(final int fromFloor, final int toFloor) {
 		final ElevatorState requestedDirection = toFloor - fromFloor > 0 ? ElevatorState.MOVING_UP : ElevatorState.MOVING_DOWN;
 		Elevator retval = null;
+		Elevator closestStoppedElevator = null;
 		Elevator closestMovingElevator = null;
 		for (final Elevator elevator : _elevators) {
 			if (elevator.getCurrentFloor() == fromFloor) {
@@ -76,9 +81,26 @@ public class ElevatorManager {
 				break;
 			}
 
-			if (elevator.getCurrentFloor() < fromFloor && (elevator.isStopped() || elevator.isMovingUp()) && requestedDirection == ElevatorState.MOVING_UP) {
-				if (closestMovingElevator == null) {
-					closestMovingElevator = elevator;
+			if (elevator.isStopped()) {
+				if (closestStoppedElevator == null) {
+					closestStoppedElevator = elevator;
+				} else {
+					closestStoppedElevator = chooseCloserElevator(closestStoppedElevator, elevator, fromFloor);
+				}
+			} else {
+				// moving elevator
+				if (elevator.getCurrentFloor() < fromFloor && elevator.isMovingUp() && requestedDirection == ElevatorState.MOVING_UP) {
+					if (closestMovingElevator == null) {
+						closestMovingElevator = elevator;
+					} else {
+						closestMovingElevator = chooseCloserElevator(closestMovingElevator, elevator, fromFloor);
+					}
+				} else if (elevator.getCurrentFloor() > fromFloor && elevator.isMovingDown() && requestedDirection == ElevatorState.MOVING_DOWN) {
+					if (closestMovingElevator == null) {
+						closestMovingElevator = elevator;
+					} else {
+						closestMovingElevator = chooseCloserElevator(closestMovingElevator, elevator, fromFloor);
+					}
 				}
 			}
 		}
