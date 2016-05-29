@@ -7,6 +7,8 @@
 
 package com.challenge.model;
 
+import com.challenge.constants.ElevatorState;
+
 /**
  * Elevator model.
  *
@@ -26,6 +28,8 @@ public class Elevator {
 
 	private boolean _doorOpen;
 
+	private ElevatorState _elevatorState;
+
 	/**
 	 * Default ctor.
 	 *
@@ -38,6 +42,14 @@ public class Elevator {
 		_minFloor = minFloor;
 		_maxFloor = maxFloor;
 		_currentFloor = minFloor;
+		_elevatorState = ElevatorState.STOPPED;
+	}
+
+	/**
+	 * @return the elevatorState
+	 */
+	public ElevatorState getElevatorState() {
+		return _elevatorState;
 	}
 
 	/**
@@ -48,6 +60,13 @@ public class Elevator {
 	}
 
 	/**
+	 * @param elevatorState the elevatorState to set
+	 */
+	public void setElevatorState(ElevatorState elevatorState) {
+		_elevatorState = elevatorState;
+	}
+
+	/**
 	 * @param targetFloor
 	 */
 	public void summonElevator(final int targetFloor) {
@@ -55,6 +74,7 @@ public class Elevator {
 			while (_currentFloor != targetFloor) {
 				moveTo(targetFloor);
 			}
+			stopElevator();
 			openDoor();
 		} else {
 			System.out.println("invalid floor");
@@ -80,11 +100,15 @@ public class Elevator {
 				closeDoor();
 			}
 			_currentFloor++;
+			setElevatorState(ElevatorState.MOVING_UP);
+			reportFloor();
 		} else if (targetFloor < _currentFloor) {
 			if (_doorOpen) {
 				closeDoor();
 			}
 			_currentFloor--;
+			setElevatorState(ElevatorState.MOVING_DOWN);
+			reportFloor();
 		}
 
 	}
@@ -93,7 +117,9 @@ public class Elevator {
 	 * Open the door.
 	 */
 	private void openDoor() {
-		if (!_doorOpen) {
+		if (ElevatorState.STOPPED != getElevatorState()) {
+			System.out.println("cannot open door of moving elevator.");
+		} else if (!_doorOpen) {
 			_doorOpen = true;
 			reportDoor();
 		}
@@ -101,6 +127,14 @@ public class Elevator {
 
 	private void reportDoor() {
 		System.out.println("elevator " + _id + ": door " + (_doorOpen ? "open" : "close"));
+	}
+
+	private void reportFloor() {
+		System.out.println("elevator " + _id + ": floor " + _currentFloor);
+	}
+
+	private void stopElevator() {
+		_elevatorState = ElevatorState.STOPPED;
 	}
 
 }
