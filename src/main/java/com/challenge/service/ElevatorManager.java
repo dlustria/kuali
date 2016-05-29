@@ -41,25 +41,28 @@ public class ElevatorManager {
 	}
 
 	/**
-	 * @param fromFloor
-	 * @param toFloor
+	 * Request an elevator.
+	 *
+	 * @param fromFloor floor to pickup passenger
+	 * @param toFloor floor to dropoff passenger
+	 * @return the allocated elevator
 	 */
-	public void requestElevator(final int fromFloor, final int toFloor) {
+	public Elevator requestElevator(final int fromFloor, final int toFloor) {
 		final Elevator elevator = locateElevator(fromFloor, toFloor);
 
-		if (elevator != null) {
+		if (elevator == null) {
+			System.out.println("no available elevator");
+		} else {
 			System.out.println("requested elevator " + elevator.getId());
 		}
+
+		return elevator;
 	}
 
 	private Elevator chooseCloserElevator(final Elevator elevator1, final Elevator elevator2, final int floor) {
 		return Math.abs(elevator2.getCurrentFloor() - floor) < Math.abs(elevator1.getCurrentFloor() - floor) ? elevator2 : elevator1;
 	}
 
-	/**
-	 * @param numberOfFloors
-	 * @param numberOfElevators
-	 */
 	private void initializeElavators(int numberOfFloors, int numberOfElevators) {
 		_elevators = new ArrayList<Elevator>();
 		for (int i = 1; i <= numberOfFloors; i++) {
@@ -67,35 +70,39 @@ public class ElevatorManager {
 		}
 	}
 
-	/**
-	 * @return
-	 */
 	private Elevator locateElevator(final int fromFloor, final int toFloor) {
 		final ElevatorState requestedDirection = toFloor - fromFloor > 0 ? ElevatorState.MOVING_UP : ElevatorState.MOVING_DOWN;
-		Elevator retval = null;
+		Elevator sameFloorElevator = null;
 		Elevator closestStoppedElevator = null;
 		Elevator closestMovingElevator = null;
 		for (final Elevator elevator : _elevators) {
-			if (elevator.getCurrentFloor() == fromFloor) {
-				retval = elevator;
+			if (elevator.getCurrentFloor() == fromFloor && elevator.isStopped()) {
+				// stopped elevator at current floor is highest priority
+				sameFloorElevator = elevator;
 				break;
 			}
 
-			if (elevator.isStopped()) {
+			// don't check for stopped elevator if a moving one is on the way
+			if (closestMovingElevator == null && elevator.isStopped()) {
+				// keep track of closest stopped elevator in a different floor
 				if (closestStoppedElevator == null) {
 					closestStoppedElevator = elevator;
 				} else {
 					closestStoppedElevator = chooseCloserElevator(closestStoppedElevator, elevator, fromFloor);
 				}
 			} else {
-				// moving elevator
+				// keep track of closest moving elevator
 				if (elevator.getCurrentFloor() < fromFloor && elevator.isMovingUp() && requestedDirection == ElevatorState.MOVING_UP) {
+					// elevator is below pickup floor and is moving up, just
+					// like the requested direction
 					if (closestMovingElevator == null) {
 						closestMovingElevator = elevator;
 					} else {
 						closestMovingElevator = chooseCloserElevator(closestMovingElevator, elevator, fromFloor);
 					}
 				} else if (elevator.getCurrentFloor() > fromFloor && elevator.isMovingDown() && requestedDirection == ElevatorState.MOVING_DOWN) {
+					// elevator is above pickup floor and is moving down, just
+					// like the requested direction
 					if (closestMovingElevator == null) {
 						closestMovingElevator = elevator;
 					} else {
@@ -105,7 +112,7 @@ public class ElevatorManager {
 			}
 		}
 
-		return retval;
+		return sameFloorElevator != null ? sameFloorElevator : closestMovingElevator != null ? closestMovingElevator : closestStoppedElevator;
 	}
 
 }
