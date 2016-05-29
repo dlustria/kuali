@@ -92,6 +92,27 @@ public class Elevator {
 	}
 
 	/**
+	 * @return true if elevator is moving down.
+	 */
+	public boolean isMovingDown() {
+		return ElevatorState.MOVING_DOWN == _elevatorState;
+	}
+
+	/**
+	 * @return true if elevator is moving up.
+	 */
+	public boolean isMovingUp() {
+		return ElevatorState.MOVING_UP == _elevatorState;
+	}
+
+	/**
+	 * @return true if elevator is not moving.
+	 */
+	public boolean isStopped() {
+		return ElevatorState.STOPPED == _elevatorState;
+	}
+
+	/**
 	 * @param elevatorState the elevatorState to set
 	 */
 	public void setElevatorState(ElevatorState elevatorState) {
